@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>LexiRoots: Full word breakdowns for all examples</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #f5f7fb;
+      font-family: system-ui, 'Segoe UI', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+      padding: 0 0 20px 0;
+      color: #1e293b;
+    }
+
+    .app-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px 16px 24px;
+    }
+
+    .app-header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .app-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #2c3e66, #1e3c72);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .app-header p {
+      font-size: 0.85rem;
+      color: #5b6e8c;
+      margin-top: 6px;
+    }
+
+    .group-selector {
+      display: flex;
+      background: #e9eef3;
+      border-radius: 44px;
+      padding: 4px;
+      margin-bottom: 20px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .group-btn {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-radius: 40px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #3b4e6e;
+    }
+    .group-btn.active {
+      background: white;
+      color: #1f4f8a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      font-weight: 700;
+    }
+
+    .tab-bar {
+      display: flex;
+      background: white;
+      border-radius: 48px;
+      padding: 4px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 12px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 44px;
+      transition: all 0.2s;
+      color: #5b6e8c;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #1f4f8a;
+      color: white;
+      box-shadow: 0 4px 10px rgba(31,79,138,0.2);
+    }
+
+    .flashcard-area {
+      perspective: 1000px;
+      margin-bottom: 24px;
+    }
+    .flashcard {
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      padding: 32px 20px;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .flashcard:active { transform: scale(0.98); }
+    .root-display {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(145deg, #0b2b44, #1f4f8a);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 24px;
+      word-break: break-word;
+    }
+    .meaning-display {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #2c3e66;
+      margin-bottom: 16px;
+    }
+    .examples-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      color: #7c8ba0;
+      margin-top: 16px;
+    }
+    .examples-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .example-badge {
+      background: #eef2ff;
+      padding: 6px 12px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #1e3a5f;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.05s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .example-badge:active {
+      background: #d9e2ef;
+      transform: scale(0.96);
+    }
+    .delete-example-icon {
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: #c2410c;
+      background: #fff0ed;
+      border-radius: 20px;
+      padding: 2px 6px;
+      margin-left: 6px;
+      cursor: pointer;
+    }
+    .delete-example-icon:hover { background: #ffe0db; }
+    .flip-hint {
+      margin-top: 20px;
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+    .nav-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 12px 0;
+      flex: 1;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: 0.1s;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      text-align: center;
+      color: #2d3a4b;
+    }
+    .nav-btn:active { background: #f1f5f9; }
+    .counter {
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 16px;
+      color: #4b5e7c;
+      font-weight: 500;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      background: #eef2ff;
+      border: none;
+      padding: 10px 0;
+      flex: 1;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #1f4f8a;
+    }
+    .action-btn.export-btn {
+      background: #e6f7ec;
+      color: #2b6e3c;
+    }
+
+    /* Quiz panel */
+    .quiz-panel {
+      background: white;
+      border-radius: 32px;
+      padding: 24px 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+    .quiz-question {
+      font-size: 2.2rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 20px 0 28px;
+      background: #f0f4fe;
+      padding: 20px 10px;
+      border-radius: 28px;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .option-btn {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 60px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      text-align: left;
+      font-weight: 500;
+      transition: all 0.1s;
+      cursor: pointer;
+      color: #1e293b;
+    }
+    .option-btn.correct-highlight {
+      background: #c8f0d1;
+      border-color: #2b7e3a;
+      color: #14532d;
+    }
+    .option-btn.wrong-highlight {
+      background: #ffe1de;
+      border-color: #c2410c;
+      color: #7c2d12;
+    }
+    .quiz-feedback {
+      text-align: center;
+      margin: 12px 0;
+      font-weight: 500;
+    }
+    .quiz-score {
+      font-size: 1rem;
+      background: #eef2ff;
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 30px;
+      margin-bottom: 16px;
+    }
+    .next-quiz-btn {
+      background: #1f4f8a;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+    }
+    .next-quiz-btn:disabled {
+      background: #9aaebf;
+      cursor: not-allowed;
+    }
+
+    /* Master list */
+    .list-container {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    }
+    .list-item {
+      border-bottom: 1px solid #edf2f7;
+      padding: 18px 16px;
+      transition: background 0.1s;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .list-info {
+      flex: 1;
+    }
+    .list-root {
+      font-weight: 800;
+      font-size: 1.25rem;
+      font-family: monospace;
+      color: #0c4e6e;
+    }
+    .list-meaning {
+      font-weight: 500;
+      color: #2c3e66;
+      margin: 6px 0 4px;
+    }
+    .list-examples {
+      font-size: 0.75rem;
+      color: #5c6f8c;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .badge-example {
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .delete-root-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #c2410c;
+      padding: 0 8px;
+    }
+    .section-title {
+      font-weight: 600;
+      margin: 12px 0 8px;
+      color: #1f4f8a;
+    }
+
+    /* Modals */
+    .modal-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .modal-mask.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-card {
+      background: white;
+      max-width: 340px;
+      width: 88%;
+      border-radius: 48px;
+      padding: 28px 20px;
+      box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .modal-card input, .modal-card textarea {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 32px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+    .modal-card textarea {
+      resize: vertical;
+    }
+    .modal-card button {
+      background: #1f4f8a;
+      color: white;
+      padding: 12px;
+      border-radius: 40px;
+      margin-top: 12px;
+      width: 100%;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-modal-btn {
+      background: #e2e8f0;
+      color: #1e293b;
+      margin-top: 8px;
+    }
+    .modal-word {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .modal-line {
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 28px;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.7rem;
+      margin-top: 32px;
+      color: #8ba0bc;
+    }
+    .empty-message {
+      text-align: center;
+      padding: 40px;
+      color: #7e8aa2;
+      font-style: italic;
+    }
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: #1e293b;
+      color: white;
+      text-align: center;
+      padding: 12px;
+      border-radius: 60px;
+      font-size: 0.85rem;
+      z-index: 1100;
+      transition: opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="app-header">
+    <h1>📖 LexiRoots</h1>
+    <p>Tap any word → see its parts & meaning</p>
+  </div>
+
+  <div class="group-selector" id="groupSelector">
+    <button data-group="greek" class="group-btn active">🇬🇷 Greek Roots</button>
+    <button data-group="latin" class="group-btn">🏛️ Latin Roots</button>
+    <button data-group="custom" class="group-btn">✨ Custom</button>
+    <button data-group="both" class="group-btn">🌍 All</button>
+  </div>
+
+  <div class="tab-bar" id="tabBar">
+    <button data-tab="flashcards" class="tab-btn active">📇 Flashcards</button>
+    <button data-tab="quiz" class="tab-btn">🎯 Quiz</button>
+    <button data-tab="list" class="tab-btn">📋 Master List</button>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div id="flashcardsPanel" class="tab-panel">
+    <div class="flashcard-area">
+      <div class="flashcard" id="flashcardEl">
+        <div class="root-display" id="cardRoot">—</div>
+        <div id="cardMeaningArea" style="display: none;">
+          <div class="meaning-display" id="cardMeaning"></div>
+          <div class="examples-title">🔍 tap any word → full breakdown</div>
+          <div class="examples-list" id="cardExamples"></div>
+        </div>
+        <div class="flip-hint">👆 tap card to flip</div>
+      </div>
+    </div>
+    <div class="nav-controls">
+      <button class="nav-btn" id="prevCardBtn">◀ Prev</button>
+      <button class="nav-btn" id="randomCardBtn">🎲 Random</button>
+      <button class="nav-btn" id="nextCardBtn">Next ▶</button>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" id="addExampleBtn">➕ Add Example</button>
+      <button class="action-btn" id="addRootBtn">📂 Add New Root</button>
+      <button class="action-btn" id="importBtn">⬇️ Bulk Import</button>
+      <button class="action-btn export-btn" id="exportBtn">📤 Export Data</button>
+    </div>
+    <div class="counter" id="cardCounter">0 / 0</div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizPanel" class="tab-panel" style="display: none;">
+    <div class="quiz-panel">
+      <div style="text-align: center"><span class="quiz-score" id="quizScoreDisplay">Score: 0/0</span></div>
+      <div class="quiz-question" id="quizRootQuestion">loading...</div>
+      <div class="options-grid" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="next-quiz-btn" id="nextQuizBtn" disabled>Next question ➡️</button>
+    </div>
+  </div>
+
+  <!-- MASTER LIST -->
+  <div id="listPanel" class="tab-panel" style="display: none;">
+    <div class="section-title">🔍 All roots (filtered)</div>
+    <div class="list-container" id="listContainer"></div>
+  </div>
+  <footer>➕ Add examples | 🗑️ Tap 🗑️ to delete | 📤 Export backup</footer>
+</div>
+
+<!-- MODAL for adding example -->
+<div id="addExampleModal" class="modal-mask">
+  <div class="modal-card">
+    <h3>➕ Add example word</h3>
+    <input type="text" id="newWord" placeholder="word (e.g., xenophobia)" autocomplete="off">
+    <input type="text" id="newParts" placeholder="breakdown (e.g., xeno + phobia)">
+    <input type="text" id="newLiterals" placeholder="literal meanings (e.g., stranger + fear)">
+    <textarea id="newArrowDef" rows="2" placeholder="→ literal bridge ; proper definition (e.g., → stranger fear ; fear of foreigners)"></textarea>
+    <button id="confirmExampleBtn">Add to this root</button>
+    <button id="closeExampleModal" class="close-modal-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL for adding new root -->
+<div id="addRootModal" class="modal-mask">
+  <div class="modal-card">
+    <h3>📂 Create new root</h3>
+    <input type="text" id="newRootName" placeholder="root (e.g., xeno)" autocomplete="off">
+    <input type="text" id="newRootMeaning" placeholder="meaning (e.g., stranger)">
+    <textarea id="newRootExampleDef" rows="3" placeholder="(Optional) initial example in format: word | parts | literals | → bridge ; definition&#10;Example: xenophobia | xeno + phobia | stranger + fear | → stranger fear ; fear of foreigners"></textarea>
+    <button id="confirmRootBtn">Create Root</button>
+    <button id="closeRootModal" class="close-modal-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL for bulk import -->
+<div id="importModal" class="modal-mask">
+  <div class="modal-card">
+    <h3>⬇️ Bulk Import Roots</h3>
+    <p style="font-size: 0.85rem; color: #5b6e8c; margin-bottom: 12px;"><strong>Format:</strong> # root: [name] (meaning: [meaning])<br>Then any lines with word, parts, literals, arrow definition (one example per 4 lines).</p>
+    <textarea id="importTextarea" rows="10" placeholder="# root: cogn (meaning: know)&#10;cognition&#10;cogn + ition&#10;know + process&#10;→ knowing process ; the mental action of acquiring knowledge"></textarea>
+    <button id="confirmImportBtn">Import Roots</button>
+    <button id="closeImportModal" class="close-modal-btn">Cancel</button>
+    <div id="importStatus" style="margin-top: 12px; display: none; padding: 12px; border-radius: 8px; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<!-- Word breakdown modal -->
+<div id="wordModal" class="modal-mask">
+  <div class="modal-card">
+    <div class="modal-word" id="modalWord"></div>
+    <div class="modal-line breakdown-line" id="modalStructure"></div>
+    <div class="modal-line literal-line" id="modalPartsMeaning"></div>
+    <div class="modal-line arrow-definition" id="modalDefinition"></div>
+    <button id="closeModalBtn" class="close-modal-btn">Got it ✨</button>
+  </div>
+</div>
+<div id="toastMsg" class="toast-msg"></div>
+
+<script>
+  // ----------------------------- ORIGINAL DATA (Greek & Latin) - FULL ARRAYS ---------------------------------
+  const greekRootsData = [
+    {root:"anti", meaning:"against, opposite", examples:["antiseptic","antibiotic","anticlimax","antisocial","antibody"]},
+    {root:"astro", meaning:"star", examples:["astronomer","astrology","astronaut","astrophysics","asteroid"]},
+    {root:"auto", meaning:"self, same", examples:["autograph","automobile","autobiography","automatic","autopilot"]},
+    {root:"bio", meaning:"life", examples:["biology","biotic","autobiography","biomechanical","bionic"]},
+    {root:"chron", meaning:"time", examples:["chronograph","chronology","chronic","synchronize","chronicle"]},
+    {root:"cosm", meaning:"universe, world, order", examples:["cosmos","microcosm","cosmology","macrocosm","cosmetic"]},
+    {root:"cracy", meaning:"type of government", examples:["democracy","theocracy","autocracy","technocracy","bureaucracy"]},
+    {root:"crat", meaning:"member of a type of government", examples:["democrat","theocrat","autocrat","technocrat","bureaucrat"]},
+    {root:"cycl", meaning:"circle, wheel", examples:["bicycle","tricycle","cycle","cyclic","unicycle"]},
+    {root:"dem", meaning:"people", examples:["demograph","democrat","democracy","demographer","epidemic"]},
+    {root:"geo", meaning:"earth", examples:["geologist","geography","geophysics","geometry","geopolitical"]},
+    {root:"gon", meaning:"angle", examples:["polygon","octagon","pentagon","hexagon","septagon"]},
+    {root:"graph/gram", meaning:"drawn, written", examples:["photograph","graphic","polygraph","telegram","hexagram"]},
+    {root:"hemi/semi", meaning:"half", examples:["hemisphere","semisweet","hemicranial","semiannual","semiconscious"]},
+    {root:"hydro/hydra", meaning:"water", examples:["hydrate","hydrometer","hydraulic","hydrologist","hydrophobia"]},
+    {root:"hyper", meaning:"over, too much", examples:["hyperspace","hyperactive","hyperactivity","hypercritical","hypersensitive"]},
+    {root:"kilo", meaning:"one thousand", examples:["kilometer","kilogram","kilobyte","kiloton","kilowatt"]},
+    {root:"mania", meaning:"madness, insanity", examples:["pyromania","kleptomania","bibliomania","megalomania","maniac"]},
+    {root:"mech", meaning:"machine", examples:["mechanic","mechanistic","mechanize","biomechanical","mechanism"]},
+    {root:"mega", meaning:"big", examples:["megabyte","megalopolis","megahertz","megaton","megastar"]},
+    {root:"meter", meaning:"measure", examples:["kilometer","hydrometer","speedometer","odometer","metric"]},
+    {root:"micro", meaning:"small", examples:["microphone","micrometer","microscope","microbiology","microcosm"]},
+    {root:"mis", meaning:"bad, wrong", examples:["mistake","misbehave","misnomer","mislead","misplace"]},
+    {root:"mon/mono", meaning:"one", examples:["monotonous","monotone","monarch","monotheist","monochrome"]},
+    {root:"ologist", meaning:"one who studies", examples:["biologist","geologist","astrologist","physiologist","hydrologist"]},
+    {root:"ology", meaning:"the study of", examples:["biology","geology","astrology","physiology","hydrology"]},
+    {root:"pan", meaning:"all, every", examples:["pantheism","panorama","pandemonium","pandemic","pantheon"]},
+    {root:"path", meaning:"suffering, disease", examples:["pathological","empathy","sympathy","psychopath","apathy"]},
+    {root:"penta", meaning:"five", examples:["pentagram","pentane","pentameter","pentagon","pentathlon"]},
+    {root:"phobia", meaning:"fear", examples:["hydrophobia","acrophobia","agoraphobia","ablutophobia","satanophobia"]},
+    {root:"phon/phono", meaning:"sound", examples:["microphone","telephone","phonograph","phonic","phoneme"]},
+    {root:"photo", meaning:"light", examples:["photograph","photon","photosynthesis","photoelectric","photogenic"]},
+    {root:"phys", meaning:"nature, body", examples:["physics","physiology","metaphysics","physical","geophysics"]},
+    {root:"pod/ped", meaning:"foot", examples:["pedal","bipedal","podiatrist","pedestrian","tripod"]},
+    {root:"poly", meaning:"many", examples:["polygon","polynomial","polytheism","polyandrous","polygraph"]},
+    {root:"psych", meaning:"mind", examples:["psychopath","psychology","psyche","psychic","psychiatry"]},
+    {root:"pyro", meaning:"fire", examples:["pyrotechnics","pyrotechnician","pyrolysis","pyromania","pyroclastic"]},
+    {root:"scope", meaning:"watch, see", examples:["microscope","telescope","scope","stethoscope","periscope"]},
+    {root:"tele", meaning:"distance", examples:["television","telephone","telescope","teleport","telekinesis"]},
+    {root:"theo", meaning:"god, religion", examples:["theology","theocracy","theocrat","theologian","pantheon"]},
+    {root:"therm", meaning:"heat", examples:["thermal","thermometer","thermonuclear","thermostat","hypothermia"]},
+    {root:"tri", meaning:"three", examples:["triangle","trilogy","trident","tricycle","tripod"]}
+  ];
+
+  const latinRootsData = [
+    {root:"ann/enn", meaning:"year, yearly", examples:["anniversary","annual","millennium","centennial","perennial"]},
+    {root:"aqu", meaning:"water", examples:["aquarium","aquamarine","aqueous","aquifer","aquatic"]},
+    {root:"aud", meaning:"sound", examples:["audio","audible","audience","audiovisual","audition"]},
+    {root:"bene", meaning:"good, well", examples:["benefit","benign","beneficial","benefactor","benevolent"]},
+    {root:"bi", meaning:"two", examples:["binary","bicycle","bifocal","bicep","binoculars"]},
+    {root:"cent", meaning:"one hundred", examples:["centimeter","century","centurion","percent","percentile"]},
+    {root:"circum", meaning:"around", examples:["circumference","circumnavigate","circumscribe","circumvent","circumstance"]},
+    {root:"con/co/col/com", meaning:"with, together", examples:["connect","collide","company","cooperate","common"]},
+    {root:"contra/contro", meaning:"against, opposite", examples:["contrast","contraindicate","contradict","contrary","contrarian"]},
+    {root:"cred", meaning:"believe", examples:["credit","credence","credible","incredible","creed"]},
+    {root:"dict", meaning:"say, speak", examples:["diction","contradict","predict","edict","verdict"]},
+    {root:"fract/frag", meaning:"break", examples:["fracture","fragment","refract","fragile","infraction"]},
+    {root:"inter", meaning:"among, between", examples:["interval","internet","interrupt","intercollegiate","intercept"]},
+    {root:"ject", meaning:"throw", examples:["eject","interject","trajectory","project","deject"]},
+    {root:"lumin", meaning:"light", examples:["illuminate","illumination","luminous","lumen","luminary"]},
+    {root:"magn", meaning:"big", examples:["magnify","magnitude","magnanimous","magnificent","magnate"]},
+    {root:"mal", meaning:"bad", examples:["malcontent","malice","malicious","malign","malfeasance"]},
+    {root:"medi/midi", meaning:"middle", examples:["medium","median","medieval","mediocre","mediate"]},
+    {root:"migr", meaning:"wander", examples:["migrant","migrate","immigrate","immigrant","emigrate"]},
+    {root:"min", meaning:"smaller", examples:["mini","minus","minuscule","minimum","minute"]},
+    {root:"miss/mit", meaning:"send", examples:["missile","transmit","remit","omit","dismiss"]},
+    {root:"mort", meaning:"death", examples:["immortal","morgue","mortal","mortality","mortician"]},
+    {root:"multi", meaning:"many", examples:["multiply","multitude","multiple","multiplex","multiplicity"]},
+    {root:"non", meaning:"not", examples:["nonviolent","nonfat","nonstop","nonverbal","nonprofit"]},
+    {root:"omni", meaning:"all", examples:["omnipresent","omniscient","omnivore","omnipotent","omnivorous"]},
+    {root:"pre", meaning:"before", examples:["previous","predict","predicate","prenuptial","prescription"]},
+    {root:"quad", meaning:"four", examples:["quad","quadrangle","quadruple","quadrilateral","quadruped"]},
+    {root:"quer/quir/ques/quis", meaning:"ask", examples:["quest","inquisition","query","question","quiz"]},
+    {root:"re-", meaning:"again", examples:["redo","rewind","resubmit","rebound","react"]},
+    {root:"scrib/script", meaning:"write", examples:["inscribe","scripture","script","scribe","scribble"]},
+    {root:"sent/sens", meaning:"feel", examples:["sense","sensitive","sensible","sentiment","consent"]},
+    {root:"spect", meaning:"look", examples:["spectator","spectacles","spectate","inspect","introspective"]},
+    {root:"struct", meaning:"build", examples:["construct","structure","destruct","instruct","construction"]},
+    {root:"sub", meaning:"under", examples:["suburbs","subway","submarine","subzero","sublime"]},
+    {root:"tempor", meaning:"time", examples:["tempo","temporary","temporal","contemporary","protem"]},
+    {root:"tain", meaning:"hold", examples:["retain","contain","maintain","entertain","detain"]},
+    {root:"tract", meaning:"pull", examples:["tractor","attract","contract","subtract","distract"]},
+    {root:"trans", meaning:"across", examples:["transport","transmit","transcribe","translate","transparent"]},
+    {root:"uni", meaning:"one", examples:["unicorn","unicycle","universe","unity","unilateral"]},
+    {root:"vac", meaning:"empty", examples:["vacant","vacancy","evacuate","vacation","vacuum"]},
+    {root:"vid/vis", meaning:"see", examples:["visible","video","vision","evidence","visit"]},
+    {root:"volv/volut", meaning:"roll", examples:["convolution","revolution","revolver","evolve","devolve"]}
+  ];
+
+  // ----------------------------- COMPLETE BREAKDOWN DICTIONARY FOR ALL BUILT-IN EXAMPLES -----------------------------
+  // Generated to match the user's detailed format: word -> { parts, literals, arrowDef }
+  const wordBreakdowns = {
+    // anti
+    "antiseptic": { parts: "anti + septic", literals: "against + rotten", arrowDef: "→ against rot ; substance that prevents infection" },
+    "antibiotic": { parts: "anti + bio + tic", literals: "against + life + relating to", arrowDef: "→ against life ; medicine that kills bacteria" },
+    "anticlimax": { parts: "anti + climax", literals: "against + high point", arrowDef: "→ against high point ; disappointing ending" },
+    "antisocial": { parts: "anti + social", literals: "against + society", arrowDef: "→ against society ; avoiding social interaction" },
+    "antibody": { parts: "anti + body", literals: "against + body (invader)", arrowDef: "→ against invader ; protein that fights infection" },
+    // astro
+    "astronomer": { parts: "astro + nomer", literals: "star + arranger", arrowDef: "→ star arranger ; scientist who studies stars" },
+    "astrology": { parts: "astro + logy", literals: "star + study", arrowDef: "→ star study ; belief that stars influence life" },
+    "astronaut": { parts: "astro + naut", literals: "star + sailor", arrowDef: "→ star sailor ; space traveler" },
+    "astrophysics": { parts: "astro + physics", literals: "star + physics", arrowDef: "→ star physics ; study of physics of stars" },
+    "asteroid": { parts: "aster + oid", literals: "star + like", arrowDef: "→ star-like ; small rocky body in space" },
+    // auto
+    "autograph": { parts: "auto + graph", literals: "self + write", arrowDef: "→ self write ; signature written by oneself" },
+    "automobile": { parts: "auto + mobile", literals: "self + move", arrowDef: "→ self move ; self-moving vehicle" },
+    "autobiography": { parts: "auto + bio + graphy", literals: "self + life + writing", arrowDef: "→ self life writing ; story of one's own life" },
+    "automatic": { parts: "auto + matic", literals: "self + acting", arrowDef: "→ self acting ; working by itself" },
+    "autopilot": { parts: "auto + pilot", literals: "self + control", arrowDef: "→ self control ; automatic control system" },
+    // bio
+    "biology": { parts: "bio + logy", literals: "life + study", arrowDef: "→ life study ; study of living organisms" },
+    "biotic": { parts: "bio + tic", literals: "life + relating to", arrowDef: "→ relating to life ; living component of environment" },
+    "biomechanical": { parts: "bio + mechanical", literals: "life + machine", arrowDef: "→ life machine ; relating to body mechanics" },
+    "bionic": { parts: "bio + nic", literals: "life + electronic", arrowDef: "→ life electronic ; artificial body part" },
+    // chron
+    "chronograph": { parts: "chrono + graph", literals: "time + write", arrowDef: "→ time writer ; time-recording device" },
+    "chronology": { parts: "chrono + logy", literals: "time + study", arrowDef: "→ time study ; arrangement by time" },
+    "chronic": { parts: "chron + ic", literals: "time + relating to", arrowDef: "→ long time ; long-lasting" },
+    "synchronize": { parts: "syn + chron + ize", literals: "together + time + make", arrowDef: "→ make same time ; happen at same time" },
+    "chronicle": { parts: "chron + icle", literals: "time + record", arrowDef: "→ time record ; record of events in time" },
+    // cosm
+    "cosmos": { parts: "cosm + os", literals: "universe", arrowDef: "→ the universe ; orderly universe" },
+    "microcosm": { parts: "micro + cosm", literals: "small + world", arrowDef: "→ small world ; miniature representation" },
+    "cosmology": { parts: "cosm + ology", literals: "universe + study", arrowDef: "→ universe study ; study of origin of universe" },
+    "macrocosm": { parts: "macro + cosm", literals: "large + world", arrowDef: "→ large world ; the whole universe" },
+    "cosmetic": { parts: "cosm + etic", literals: "order + relating to", arrowDef: "→ relating to appearance ; beauty product" },
+    // cracy
+    "democracy": { parts: "demo + cracy", literals: "people + rule", arrowDef: "→ people rule ; government by the people" },
+    "theocracy": { parts: "theo + cracy", literals: "god + rule", arrowDef: "→ god rule ; government by religious authority" },
+    "autocracy": { parts: "auto + cracy", literals: "self + rule", arrowDef: "→ self rule ; government by one person" },
+    "technocracy": { parts: "techno + cracy", literals: "technology + rule", arrowDef: "→ technology rule ; rule by technical experts" },
+    "bureaucracy": { parts: "bureau + cracy", literals: "office + rule", arrowDef: "→ office rule ; government by officials" },
+    // crat
+    "democrat": { parts: "demo + crat", literals: "people + ruler", arrowDef: "→ people ruler ; supporter of democracy" },
+    "theocrat": { parts: "theo + crat", literals: "god + ruler", arrowDef: "→ god ruler ; religious ruler" },
+    "autocrat": { parts: "auto + crat", literals: "self + ruler", arrowDef: "→ self ruler ; absolute ruler" },
+    "technocrat": { parts: "techno + crat", literals: "technology + ruler", arrowDef: "→ technology ruler ; technical expert in government" },
+    "bureaucrat": { parts: "bureau + crat", literals: "office + ruler", arrowDef: "→ office ruler ; government official" },
+    // cycl
+    "bicycle": { parts: "bi + cycle", literals: "two + wheel", arrowDef: "→ two wheels ; two-wheeled vehicle" },
+    "tricycle": { parts: "tri + cycle", literals: "three + wheel", arrowDef: "→ three wheels ; three-wheeled vehicle" },
+    "cycle": { parts: "cycle", literals: "circle", arrowDef: "→ circle ; repeating sequence" },
+    "cyclic": { parts: "cycl + ic", literals: "circle + relating to", arrowDef: "→ relating to circle ; occurring in cycles" },
+    "unicycle": { parts: "uni + cycle", literals: "one + wheel", arrowDef: "→ one wheel ; one-wheeled vehicle" },
+    // dem
+    "demograph": { parts: "demo + graph", literals: "people + write", arrowDef: "→ people write ; population statistics" },
+    "demographer": { parts: "demo + graph + er", literals: "people + write + person", arrowDef: "→ people writer ; population specialist" },
+    "epidemic": { parts: "epi + dem + ic", literals: "upon + people + relating to", arrowDef: "→ upon people ; disease spreading among people" },
+    // geo
+    "geologist": { parts: "geo + log + ist", literals: "earth + study + person", arrowDef: "→ earth studier ; scientist who studies earth" },
+    "geography": { parts: "geo + graphy", literals: "earth + write", arrowDef: "→ earth writing ; study of earth's features" },
+    "geophysics": { parts: "geo + physics", literals: "earth + physics", arrowDef: "→ earth physics ; physics of the earth" },
+    "geometry": { parts: "geo + metry", literals: "earth + measure", arrowDef: "→ earth measure ; branch of mathematics measuring space" },
+    "geopolitical": { parts: "geo + political", literals: "earth + politics", arrowDef: "→ earth politics ; relating to world politics" },
+    // gon
+    "polygon": { parts: "poly + gon", literals: "many + angles", arrowDef: "→ many angles ; many-sided shape" },
+    "octagon": { parts: "octa + gon", literals: "eight + angles", arrowDef: "→ eight angles ; eight-sided shape" },
+    "pentagon": { parts: "penta + gon", literals: "five + angles", arrowDef: "→ five angles ; five-sided shape" },
+    "hexagon": { parts: "hexa + gon", literals: "six + angles", arrowDef: "→ six angles ; six-sided shape" },
+    "septagon": { parts: "septa + gon", literals: "seven + angles", arrowDef: "→ seven angles ; seven-sided shape" },
+    // graph/gram
+    "photograph": { parts: "photo + graph", literals: "light + write", arrowDef: "→ light writing ; picture made by light" },
+    "graphic": { parts: "graph + ic", literals: "write + relating to", arrowDef: "→ relating to writing ; visual image" },
+    "polygraph": { parts: "poly + graph", literals: "many + write", arrowDef: "→ many writings ; lie detector (records multiple signals)" },
+    "telegram": { parts: "tele + gram", literals: "distance + write", arrowDef: "→ distance writing ; message sent far" },
+    "hexagram": { parts: "hexa + gram", literals: "six + write", arrowDef: "→ six writings ; six-pointed star symbol" },
+    // hemi/semi
+    "hemisphere": { parts: "hemi + sphere", literals: "half + globe", arrowDef: "→ half globe ; half of the earth" },
+    "semisweet": { parts: "semi + sweet", literals: "half + sweet", arrowDef: "→ half sweet ; partly sweet" },
+    "hemicranial": { parts: "hemi + cranial", literals: "half + skull", arrowDef: "→ half skull ; affecting one side of head" },
+    "semiannual": { parts: "semi + annual", literals: "half + year", arrowDef: "→ half year ; twice a year" },
+    "semiconscious": { parts: "semi + conscious", literals: "half + aware", arrowDef: "→ half aware ; partly conscious" },
+    // hydro/hydra
+    "hydrate": { parts: "hydr + ate", literals: "water + make", arrowDef: "→ make water ; add water" },
+    "hydrometer": { parts: "hydro + meter", literals: "water + measure", arrowDef: "→ water measure ; device to measure water density" },
+    "hydraulic": { parts: "hydro + aulic", literals: "water + pipe", arrowDef: "→ water pipe ; operated by water pressure" },
+    "hydrologist": { parts: "hydro + log + ist", literals: "water + study + person", arrowDef: "→ water studier ; scientist of water" },
+    "hydrophobia": { parts: "hydro + phobia", literals: "water + fear", arrowDef: "→ water fear ; fear of water" },
+    // hyper
+    "hyperspace": { parts: "hyper + space", literals: "over + space", arrowDef: "→ over space ; space beyond normal" },
+    "hyperactive": { parts: "hyper + active", literals: "over + active", arrowDef: "→ over active ; excessively active" },
+    "hyperactivity": { parts: "hyper + activity", literals: "over + activity", arrowDef: "→ over activity ; excessive activity" },
+    "hypercritical": { parts: "hyper + critical", literals: "over + critical", arrowDef: "→ over critical ; too critical" },
+    "hypersensitive": { parts: "hyper + sensitive", literals: "over + sensitive", arrowDef: "→ over sensitive ; too sensitive" },
+    // kilo
+    "kilometer": { parts: "kilo + meter", literals: "thousand + measure", arrowDef: "→ thousand measures ; 1000 meters" },
+    "kilogram": { parts: "kilo + gram", literals: "thousand + weight", arrowDef: "→ thousand weights ; 1000 grams" },
+    "kilobyte": { parts: "kilo + byte", literals: "thousand + bytes", arrowDef: "→ thousand bytes ; 1024 bytes" },
+    "kiloton": { parts: "kilo + ton", literals: "thousand + tons", arrowDef: "→ thousand tons ; 1000 tons" },
+    "kilowatt": { parts: "kilo + watt", literals: "thousand + watts", arrowDef: "→ thousand watts ; 1000 watts" },
+    // mania
+    "pyromania": { parts: "pyro + mania", literals: "fire + madness", arrowDef: "→ fire madness ; obsession with fire" },
+    "kleptomania": { parts: "klepto + mania", literals: "steal + madness", arrowDef: "→ steal madness ; urge to steal" },
+    "bibliomania": { parts: "biblio + mania", literals: "books + madness", arrowDef: "→ books madness ; obsession with books" },
+    "megalomania": { parts: "megalo + mania", literals: "great + madness", arrowDef: "→ great madness ; delusions of power" },
+    "maniac": { parts: "mania + ac", literals: "madness + person", arrowDef: "→ madness person ; insane person" },
+    // mech
+    "mechanic": { parts: "mech + anic", literals: "machine + person", arrowDef: "→ machine person ; one who repairs machines" },
+    "mechanistic": { parts: "mechan + istic", literals: "machine + relating to", arrowDef: "→ machine-like ; mechanical" },
+    "mechanize": { parts: "mechan + ize", literals: "machine + make", arrowDef: "→ make machine ; make automatic" },
+    "mechanism": { parts: "mechan + ism", literals: "machine + system", arrowDef: "→ machine system ; working system" },
+    // mega
+    "megabyte": { parts: "mega + byte", literals: "big + bytes", arrowDef: "→ big bytes ; million bytes" },
+    "megalopolis": { parts: "mega + polis", literals: "big + city", arrowDef: "→ big city ; very large city" },
+    "megahertz": { parts: "mega + hertz", literals: "million + frequency", arrowDef: "→ million hertz ; million cycles per second" },
+    "megaton": { parts: "mega + ton", literals: "big + ton", arrowDef: "→ big ton ; million tons" },
+    "megastar": { parts: "mega + star", literals: "big + star", arrowDef: "→ big star ; very famous star" },
+    // meter
+    "speedometer": { parts: "speed + meter", literals: "speed + measure", arrowDef: "→ speed measure ; device measuring speed" },
+    "odometer": { parts: "odo + meter", literals: "road + measure", arrowDef: "→ road measure ; distance meter" },
+    "metric": { parts: "metr + ic", literals: "measure + relating to", arrowDef: "→ relating to measure ; measurement system" },
+    // micro
+    "microphone": { parts: "micro + phone", literals: "small + sound", arrowDef: "→ small sound ; amplifies sound" },
+    "micrometer": { parts: "micro + meter", literals: "small + measure", arrowDef: "→ small measure ; measures tiny distances" },
+    "microscope": { parts: "micro + scope", literals: "small + see", arrowDef: "→ small see ; sees small objects" },
+    "microbiology": { parts: "micro + bio + logy", literals: "small + life + study", arrowDef: "→ small life study ; study of microorganisms" },
+    // mis
+    "mistake": { parts: "mis + take", literals: "wrong + take", arrowDef: "→ wrong take ; wrong action" },
+    "misbehave": { parts: "mis + behave", literals: "bad + behave", arrowDef: "→ bad behave ; behave badly" },
+    "misnomer": { parts: "mis + nom + er", literals: "wrong + name", arrowDef: "→ wrong name ; incorrect name" },
+    "mislead": { parts: "mis + lead", literals: "wrong + lead", arrowDef: "→ wrong lead ; lead wrongly" },
+    "misplace": { parts: "mis + place", literals: "wrong + place", arrowDef: "→ wrong place ; put in wrong place" },
+    // mono
+    "monotonous": { parts: "mono + tonous", literals: "one + tone", arrowDef: "→ one tone ; same tone" },
+    "monotone": { parts: "mono + tone", literals: "one + sound", arrowDef: "→ one sound ; single tone" },
+    "monarch": { parts: "mono + arch", literals: "one + ruler", arrowDef: "→ one ruler ; single ruler" },
+    "monotheist": { parts: "mono + theist", literals: "one + god", arrowDef: "→ one god ; believer in one god" },
+    "monochrome": { parts: "mono + chrome", literals: "one + color", arrowDef: "→ one color ; single color" },
+    // ologist
+    "biologist": { parts: "bio + log + ist", literals: "life + study + person", arrowDef: "→ life studier ; scientist of life" },
+    "geologist": { parts: "geo + log + ist", literals: "earth + study + person", arrowDef: "→ earth studier ; earth scientist" },
+    "astrologist": { parts: "astro + log + ist", literals: "star + study + person", arrowDef: "→ star studier ; astrologer" },
+    "physiologist": { parts: "physio + log + ist", literals: "body + study + person", arrowDef: "→ body studier ; body scientist" },
+    "hydrologist": { parts: "hydro + log + ist", literals: "water + study + person", arrowDef: "→ water studier ; water scientist" },
+    // ology
+    "geology": { parts: "geo + logy", literals: "earth + study", arrowDef: "→ earth study ; study of earth" },
+    "astrology": { parts: "astro + logy", literals: "star + study", arrowDef: "→ star study ; study of stars' influence" },
+    "physiology": { parts: "physio + logy", literals: "body + study", arrowDef: "→ body study ; study of body functions" },
+    "hydrology": { parts: "hydro + logy", literals: "water + study", arrowDef: "→ water study ; study of water" },
+    // pan
+    "pantheism": { parts: "pan + theism", literals: "all + gods", arrowDef: "→ all gods ; belief god is in all things" },
+    "panorama": { parts: "pan + orama", literals: "all + view", arrowDef: "→ all view ; wide view" },
+    "pandemonium": { parts: "pan + demon + ium", literals: "all + demons + place", arrowDef: "→ all demons ; wild chaos" },
+    "pandemic": { parts: "pan + dem + ic", literals: "all + people + relating to", arrowDef: "→ all people ; widespread disease" },
+    "pantheon": { parts: "pan + theon", literals: "all + gods", arrowDef: "→ all gods ; temple of all gods" },
+    // path
+    "pathological": { parts: "patho + logical", literals: "disease + study of", arrowDef: "→ disease study ; relating to disease" },
+    "empathy": { parts: "em + pathy", literals: "in + feeling", arrowDef: "→ in feeling ; understanding others' feelings" },
+    "sympathy": { parts: "sym + pathy", literals: "together + feeling", arrowDef: "→ together feeling ; shared feeling" },
+    "psychopath": { parts: "psycho + path", literals: "mind + disease", arrowDef: "→ mind disease ; mentally ill person" },
+    "apathy": { parts: "a + pathy", literals: "without + feeling", arrowDef: "→ without feeling ; lack of interest" },
+    // penta
+    "pentagram": { parts: "penta + gram", literals: "five + write", arrowDef: "→ five writings ; five-pointed star" },
+    "pentane": { parts: "pent + ane", literals: "five + chemical", arrowDef: "→ five carbons ; hydrocarbon" },
+    "pentameter": { parts: "penta + meter", literals: "five + measure", arrowDef: "→ five measures ; five feet in poetry" },
+    "pentathlon": { parts: "penta + athlon", literals: "five + contest", arrowDef: "→ five contests ; five-sport event" },
+    // phobia
+    "acrophobia": { parts: "acro + phobia", literals: "height + fear", arrowDef: "→ height fear ; fear of heights" },
+    "agoraphobia": { parts: "agora + phobia", literals: "marketplace + fear", arrowDef: "→ marketplace fear ; fear of open spaces" },
+    "ablutophobia": { parts: "abluto + phobia", literals: "washing + fear", arrowDef: "→ washing fear ; fear of bathing" },
+    "satanophobia": { parts: "satan + phobia", literals: "devil + fear", arrowDef: "→ devil fear ; fear of evil" },
+    // phon/phono
+    "telephone": { parts: "tele + phone", literals: "distance + sound", arrowDef: "→ distance sound ; device for sound over distance" },
+    "phonograph": { parts: "phono + graph", literals: "sound + write", arrowDef: "→ sound writer ; record player" },
+    "phonic": { parts: "phon + ic", literals: "sound + relating to", arrowDef: "→ relating to sound ; of sound" },
+    "phoneme": { parts: "phon + eme", literals: "sound + unit", arrowDef: "→ sound unit ; smallest sound unit" },
+    // photo
+    "photon": { parts: "photo + n", literals: "light + particle", arrowDef: "→ light particle ; quantum of light" },
+    "photosynthesis": { parts: "photo + synthesis", literals: "light + put together", arrowDef: "→ light putting together ; plant food-making process" },
+    "photoelectric": { parts: "photo + electric", literals: "light + electricity", arrowDef: "→ light electricity ; electricity from light" },
+    "photogenic": { parts: "photo + genic", literals: "light + producing", arrowDef: "→ light producing ; looking good in photos" },
+    // phys
+    "physics": { parts: "phys + ics", literals: "nature + study", arrowDef: "→ nature study ; study of matter and energy" },
+    "metaphysics": { parts: "meta + physics", literals: "beyond + nature", arrowDef: "→ beyond nature ; philosophy of reality" },
+    "physical": { parts: "phys + ical", literals: "body + relating to", arrowDef: "→ relating to body ; of the body" },
+    // pod/ped
+    "pedal": { parts: "ped + al", literals: "foot + relating to", arrowDef: "→ relating to foot ; foot lever" },
+    "bipedal": { parts: "bi + ped + al", literals: "two + foot", arrowDef: "→ two feet ; two-footed" },
+    "podiatrist": { parts: "pod + iatrist", literals: "foot + doctor", arrowDef: "→ foot doctor ; foot doctor" },
+    "pedestrian": { parts: "ped + estrian", literals: "foot + person", arrowDef: "→ foot person ; person walking" },
+    // poly
+    "polynomial": { parts: "poly + nomial", literals: "many + terms", arrowDef: "→ many terms ; algebraic expression with many terms" },
+    "polytheism": { parts: "poly + theism", literals: "many + gods", arrowDef: "→ many gods ; belief in many gods" },
+    "polyandrous": { parts: "poly + andr + ous", literals: "many + male + having", arrowDef: "→ having many males ; having multiple husbands" },
+    // psych
+    "psychopath": { parts: "psycho + path", literals: "mind + disease", arrowDef: "→ mind disease ; person with mental disorder" },
+    "psychology": { parts: "psycho + logy", literals: "mind + study", arrowDef: "→ mind study ; study of mind" },
+    "psyche": { parts: "psych + e", literals: "mind", arrowDef: "→ mind ; human soul/mind" },
+    "psychic": { parts: "psych + ic", literals: "mind + relating to", arrowDef: "→ relating to mind ; paranormal" },
+    "psychiatry": { parts: "psych + iatry", literals: "mind + treatment", arrowDef: "→ mind treatment ; medical treatment of mind" },
+    // pyro
+    "pyrotechnics": { parts: "pyro + technics", literals: "fire + art", arrowDef: "→ fire art ; fireworks" },
+    "pyrotechnician": { parts: "pyro + technician", literals: "fire + specialist", arrowDef: "→ fire specialist ; fireworks expert" },
+    "pyrolysis": { parts: "pyro + lysis", literals: "fire + break", arrowDef: "→ fire break ; decomposition by heat" },
+    "pyroclastic": { parts: "pyro + clastic", literals: "fire + broken", arrowDef: "→ fire broken ; volcanic fragments" },
+    // scope
+    "telescope": { parts: "tele + scope", literals: "distance + see", arrowDef: "→ distance see ; sees far objects" },
+    "stethoscope": { parts: "stetho + scope", literals: "chest + see", arrowDef: "→ chest see ; listens to heart" },
+    "periscope": { parts: "peri + scope", literals: "around + see", arrowDef: "→ around see ; sees around obstacles" },
+    // tele
+    "television": { parts: "tele + vision", literals: "distance + see", arrowDef: "→ distance see ; broadcasts moving images" },
+    "teleport": { parts: "tele + port", literals: "distance + carry", arrowDef: "→ distance carry ; instant transport" },
+    "telekinesis": { parts: "tele + kinesis", literals: "distance + movement", arrowDef: "→ distance movement ; moving objects with mind" },
+    // theo
+    "theology": { parts: "theo + logy", literals: "god + study", arrowDef: "→ god study ; study of religion" },
+    "theologian": { parts: "theo + log + ian", literals: "god + study + person", arrowDef: "→ god studier ; religion scholar" },
+    // therm
+    "thermal": { parts: "therm + al", literals: "heat + relating to", arrowDef: "→ relating to heat ; of heat" },
+    "thermometer": { parts: "thermo + meter", literals: "heat + measure", arrowDef: "→ heat measure ; temperature device" },
+    "thermonuclear": { parts: "thermo + nuclear", literals: "heat + nucleus", arrowDef: "→ heat nucleus ; nuclear fusion" },
+    "thermostat": { parts: "thermo + stat", literals: "heat + control", arrowDef: "→ heat control ; temperature controller" },
+    "hypothermia": { parts: "hypo + therm + ia", literals: "under + heat + condition", arrowDef: "→ under heat ; dangerously low body temperature" },
+    // tri
+    "triangle": { parts: "tri + angle", literals: "three + angles", arrowDef: "→ three angles ; three-sided shape" },
+    "trilogy": { parts: "tri + logy", literals: "three + parts", arrowDef: "→ three parts ; series of three" },
+    "trident": { parts: "tri + dent", literals: "three + teeth", arrowDef: "→ three teeth ; three-pointed spear" },
+    // Latin roots (sample, but we'll add many)
+    "anniversary": { parts: "anni + vers + ary", literals: "year + turn + relating to", arrowDef: "→ year turning ; annual celebration" },
+    "annual": { parts: "ann + ual", literals: "year + relating to", arrowDef: "→ relating to year ; yearly" },
+    "millennium": { parts: "mill + enn + ium", literals: "thousand + year + period", arrowDef: "→ thousand years ; period of 1000 years" },
+    "centennial": { parts: "cent + enn + ial", literals: "hundred + year + relating to", arrowDef: "→ hundred years ; 100-year anniversary" },
+    "perennial": { parts: "per + enn + ial", literals: "through + year + relating to", arrowDef: "→ through years ; lasting many years" },
+    "aquarium": { parts: "aqua + rium", literals: "water + place", arrowDef: "→ water place ; tank for water life" },
+    "aquamarine": { parts: "aqua + marine", literals: "water + of the sea", arrowDef: "→ water of sea ; bluish-green gem" },
+    "aqueous": { parts: "aque + ous", literals: "water + full of", arrowDef: "→ full of water ; watery" },
+    "aquifer": { parts: "aqua + fer", literals: "water + carry", arrowDef: "→ water carrier ; underground water layer" },
+    "aquatic": { parts: "aqua + tic", literals: "water + relating to", arrowDef: "→ relating to water ; living in water" },
+    "audio": { parts: "aud + io", literals: "sound + related", arrowDef: "→ related to sound ; sound" },
+    "audible": { parts: "aud + ible", literals: "sound + able", arrowDef: "→ able to be heard ; hearable" },
+    "audience": { parts: "aud + ience", literals: "sound + group", arrowDef: "→ sound group ; listeners" },
+    "audiovisual": { parts: "audio + visual", literals: "sound + sight", arrowDef: "→ sound and sight ; using both" },
+    "audition": { parts: "aud + ition", literals: "sound + process", arrowDef: "→ sound process ; trial performance" },
+    "benefit": { parts: "bene + fit", literals: "good + do", arrowDef: "→ do good ; advantage" },
+    "benign": { parts: "ben + ign", literals: "good + birth", arrowDef: "→ good nature ; harmless" },
+    "beneficial": { parts: "bene + fic + ial", literals: "good + make + relating to", arrowDef: "→ making good ; helpful" },
+    "benefactor": { parts: "bene + factor", literals: "good + doer", arrowDef: "→ good doer ; one who gives help" },
+    "benevolent": { parts: "bene + volent", literals: "good + wish", arrowDef: "→ good wishing ; kind" },
+    "binary": { parts: "bi + nary", literals: "two + relating to", arrowDef: "→ relating to two ; two-part system" },
+    "bifocal": { parts: "bi + focal", literals: "two + focus", arrowDef: "→ two focuses ; lenses with two strengths" },
+    "bicep": { parts: "bi + cep", literals: "two + head", arrowDef: "→ two heads ; arm muscle" },
+    "binoculars": { parts: "bi + oculars", literals: "two + eyes", arrowDef: "→ two eyes ; device for seeing far" },
+    "centimeter": { parts: "centi + meter", literals: "hundred + measure", arrowDef: "→ hundredth of a meter ; 0.01 meter" },
+    "century": { parts: "cent + ury", literals: "hundred + period", arrowDef: "→ hundred years ; 100 years" },
+    "centurion": { parts: "cent + urion", literals: "hundred + leader", arrowDef: "→ leader of hundred ; Roman officer" },
+    "percent": { parts: "per + cent", literals: "out of + hundred", arrowDef: "→ out of hundred ; per hundred" },
+    "percentile": { parts: "percent + ile", literals: "per hundred + relating to", arrowDef: "→ relating to per hundred ; statistical rank" },
+    "circumference": { parts: "circum + ference", literals: "around + carry", arrowDef: "→ carry around ; distance around circle" },
+    "circumnavigate": { parts: "circum + navigate", literals: "around + sail", arrowDef: "→ sail around ; travel around" },
+    "circumscribe": { parts: "circum + scribe", literals: "around + write", arrowDef: "→ write around ; draw a line around" },
+    "circumvent": { parts: "circum + vent", literals: "around + come", arrowDef: "→ come around ; avoid" },
+    "circumstance": { parts: "circum + stance", literals: "around + stand", arrowDef: "→ stand around ; condition" },
+    "connect": { parts: "con + nect", literals: "together + tie", arrowDef: "→ tie together ; join" },
+    "collide": { parts: "col + lide", literals: "together + strike", arrowDef: "→ strike together ; crash" },
+    "company": { parts: "com + pany", literals: "together + bread", arrowDef: "→ break bread together ; business group" },
+    "cooperate": { parts: "co + operate", literals: "together + work", arrowDef: "→ work together ; collaborate" },
+    "common": { parts: "com + mon", literals: "together + shared", arrowDef: "→ shared together ; ordinary" },
+    "contrast": { parts: "contra + st", literals: "against + stand", arrowDef: "→ stand against ; difference" },
+    "contraindicate": { parts: "contra + indicate", literals: "against + point", arrowDef: "→ point against ; advise against" },
+    "contradict": { parts: "contra + dict", literals: "against + speak", arrowDef: "→ speak against ; deny" },
+    "contrary": { parts: "contra + ry", literals: "against + relating to", arrowDef: "→ relating to against ; opposite" },
+    "contrarian": { parts: "contrary + an", literals: "opposite + person", arrowDef: "→ opposite person ; one who opposes" },
+    "credit": { parts: "cred + it", literals: "believe + thing", arrowDef: "→ thing believed ; financial trust" },
+    "credence": { parts: "cred + ence", literals: "believe + state", arrowDef: "→ state of belief ; acceptance" },
+    "credible": { parts: "cred + ible", literals: "believe + able", arrowDef: "→ able to be believed ; trustworthy" },
+    "incredible": { parts: "in + credible", literals: "not + believable", arrowDef: "→ not believable ; amazing" },
+    "creed": { parts: "creed", literals: "believe", arrowDef: "→ belief ; statement of faith" },
+    "diction": { parts: "dict + ion", literals: "speak + process", arrowDef: "→ process of speaking ; word choice" },
+    "predict": { parts: "pre + dict", literals: "before + say", arrowDef: "→ say before ; foretell" },
+    "edict": { parts: "e + dict", literals: "out + say", arrowDef: "→ say out ; official order" },
+    "verdict": { parts: "ver + dict", literals: "true + say", arrowDef: "→ say true ; jury decision" },
+    "fracture": { parts: "fract + ure", literals: "break + result", arrowDef: "→ result of break ; cracked bone" },
+    "fragment": { parts: "frag + ment", literals: "break + thing", arrowDef: "→ broken thing ; piece" },
+    "refract": { parts: "re + fract", literals: "back + break", arrowDef: "→ break back ; bend light" },
+    "fragile": { parts: "frag + ile", literals: "break + able", arrowDef: "→ able to break ; delicate" },
+    "infraction": { parts: "in + fract + ion", literals: "into + break + process", arrowDef: "→ breaking into ; violation" },
+    "interval": { parts: "inter + val", literals: "between + wall", arrowDef: "→ between walls ; gap" },
+    "internet": { parts: "inter + net", literals: "between + network", arrowDef: "→ between networks ; global network" },
+    "interrupt": { parts: "inter + rupt", literals: "between + break", arrowDef: "→ break between ; stop" },
+    "intercollegiate": { parts: "inter + collegiate", literals: "between + colleges", arrowDef: "→ between colleges ; college competition" },
+    "intercept": { parts: "inter + cept", literals: "between + take", arrowDef: "→ take between ; catch" },
+    "eject": { parts: "e + ject", literals: "out + throw", arrowDef: "→ throw out ; expel" },
+    "interject": { parts: "inter + ject", literals: "between + throw", arrowDef: "→ throw between ; insert comment" },
+    "trajectory": { parts: "tra + ject + ory", literals: "across + throw + place", arrowDef: "→ place of throwing across ; path" },
+    "project": { parts: "pro + ject", literals: "forward + throw", arrowDef: "→ throw forward ; plan" },
+    "deject": { parts: "de + ject", literals: "down + throw", arrowDef: "→ throw down ; sadden" },
+    "illuminate": { parts: "il + lumin + ate", literals: "into + light + make", arrowDef: "→ make light ; light up" },
+    "illumination": { parts: "il + lumin + ation", literals: "into + light + process", arrowDef: "→ process of lighting ; light" },
+    "luminous": { parts: "lumin + ous", literals: "light + full of", arrowDef: "→ full of light ; glowing" },
+    "lumen": { parts: "lumen", literals: "light", arrowDef: "→ unit of light ; light unit" },
+    "luminary": { parts: "lumin + ary", literals: "light + person", arrowDef: "→ light person ; expert" },
+    "magnify": { parts: "magn + ify", literals: "big + make", arrowDef: "→ make big ; enlarge" },
+    "magnitude": { parts: "magn + itude", literals: "big + state", arrowDef: "→ state of being big ; size" },
+    "magnanimous": { parts: "magn + animous", literals: "big + spirit", arrowDef: "→ big spirit ; generous" },
+    "magnificent": { parts: "magn + ficent", literals: "big + making", arrowDef: "→ making big ; splendid" },
+    "magnate": { parts: "magn + ate", literals: "big + person", arrowDef: "→ big person ; powerful person" },
+    "malcontent": { parts: "mal + content", literals: "bad + satisfied", arrowDef: "→ bad satisfaction ; dissatisfied" },
+    "malice": { parts: "mal + ice", literals: "bad + quality", arrowDef: "→ bad quality ; ill will" },
+    "malicious": { parts: "mal + ic + ious", literals: "bad + relating to", arrowDef: "→ relating to bad ; spiteful" },
+    "malign": { parts: "mal + ign", literals: "bad + birth", arrowDef: "→ bad nature ; harmful" },
+    "malfeasance": { parts: "mal + feasance", literals: "bad + doing", arrowDef: "→ bad doing ; wrongdoing" },
+    "medium": { parts: "medi + um", literals: "middle + thing", arrowDef: "→ middle thing ; means" },
+    "median": { parts: "medi + an", literals: "middle + relating to", arrowDef: "→ relating to middle ; midpoint" },
+    "medieval": { parts: "medi + eval", literals: "middle + age", arrowDef: "→ middle age ; of Middle Ages" },
+    "mediocre": { parts: "medi + ocre", literals: "middle + mountain", arrowDef: "→ middle mountain ; average" },
+    "mediate": { parts: "medi + ate", literals: "middle + make", arrowDef: "→ make middle ; intervene" },
+    "migrant": { parts: "migr + ant", literals: "wander + person", arrowDef: "→ wandering person ; one who moves" },
+    "migrate": { parts: "migr + ate", literals: "wander + make", arrowDef: "→ make wander ; move" },
+    "immigrate": { parts: "im + migrate", literals: "into + wander", arrowDef: "→ wander into ; move into country" },
+    "immigrant": { parts: "im + migrant", literals: "into + wanderer", arrowDef: "→ wanderer into ; one who immigrates" },
+    "emigrate": { parts: "e + migrate", literals: "out + wander", arrowDef: "→ wander out ; leave country" },
+    "mini": { parts: "min + i", literals: "small + thing", arrowDef: "→ small thing ; small" },
+    "minus": { parts: "min + us", literals: "small + more", arrowDef: "→ more small ; less" },
+    "minuscule": { parts: "minus + cule", literals: "small + very", arrowDef: "→ very small ; tiny" },
+    "minimum": { parts: "min + imum", literals: "small + most", arrowDef: "→ most small ; least" },
+    "minute": { parts: "min + ute", literals: "small + thing", arrowDef: "→ small thing ; 60 seconds" },
+    "missile": { parts: "miss + ile", literals: "send + able", arrowDef: "→ able to send ; projectile" },
+    "transmit": { parts: "trans + mit", literals: "across + send", arrowDef: "→ send across ; broadcast" },
+    "remit": { parts: "re + mit", literals: "back + send", arrowDef: "→ send back ; cancel" },
+    "omit": { parts: "o + mit", literals: "away + send", arrowDef: "→ send away ; leave out" },
+    "dismiss": { parts: "dis + miss", literals: "away + send", arrowDef: "→ send away ; fire" },
+    "immortal": { parts: "im + mortal", literals: "not + death", arrowDef: "→ not death ; undying" },
+    "morgue": { parts: "morgue", literals: "death", arrowDef: "→ death place ; dead body storage" },
+    "mortal": { parts: "mort + al", literals: "death + relating to", arrowDef: "→ relating to death ; deadly" },
+    "mortality": { parts: "mort + ality", literals: "death + state", arrowDef: "→ state of death ; death rate" },
+    "mortician": { parts: "mort + ician", literals: "death + specialist", arrowDef: "→ death specialist ; funeral director" },
+    "multiply": { parts: "multi + ply", literals: "many + fold", arrowDef: "→ many fold ; increase" },
+    "multitude": { parts: "multi + tude", literals: "many + state", arrowDef: "→ state of many ; crowd" },
+    "multiple": { parts: "multi + ple", literals: "many + fold", arrowDef: "→ many fold ; several" },
+    "multiplex": { parts: "multi + plex", literals: "many + weave", arrowDef: "→ weave many ; complex" },
+    "multiplicity": { parts: "multi + plicity", literals: "many + foldness", arrowDef: "→ many foldness ; large number" },
+    "nonviolent": { parts: "non + violent", literals: "not + violent", arrowDef: "→ not violent ; peaceful" },
+    "nonfat": { parts: "non + fat", literals: "not + fat", arrowDef: "→ not fat ; fat-free" },
+    "nonstop": { parts: "non + stop", literals: "not + stop", arrowDef: "→ not stop ; continuous" },
+    "nonverbal": { parts: "non + verbal", literals: "not + words", arrowDef: "→ not words ; without speech" },
+    "nonprofit": { parts: "non + profit", literals: "not + profit", arrowDef: "→ not profit ; charitable" },
+    "omnipresent": { parts: "omni + present", literals: "all + present", arrowDef: "→ all present ; everywhere" },
+    "omniscient": { parts: "omni + scient", literals: "all + knowing", arrowDef: "→ all knowing ; all-knowing" },
+    "omnivore": { parts: "omni + vore", literals: "all + eat", arrowDef: "→ all eater ; eats plants and meat" },
+    "omnipotent": { parts: "omni + potent", literals: "all + powerful", arrowDef: "→ all powerful ; all-powerful" },
+    "omnivorous": { parts: "omni + vorous", literals: "all + eating", arrowDef: "→ all eating ; eating everything" },
+    "previous": { parts: "pre + vious", literals: "before + way", arrowDef: "→ way before ; earlier" },
+    "predicate": { parts: "pre + dic + ate", literals: "before + say + make", arrowDef: "→ make say before ; assert" },
+    "prenuptial": { parts: "pre + nuptial", literals: "before + wedding", arrowDef: "→ before wedding ; marriage agreement" },
+    "prescription": { parts: "pre + script + ion", literals: "before + write + process", arrowDef: "→ write before ; doctor's order" },
+    "quad": { parts: "quad", literals: "four", arrowDef: "→ four ; four of something" },
+    "quadrangle": { parts: "quad + angle", literals: "four + angles", arrowDef: "→ four angles ; four-sided shape" },
+    "quadruple": { parts: "quadru + ple", literals: "four + fold", arrowDef: "→ four fold ; multiply by four" },
+    "quadrilateral": { parts: "quadri + lateral", literals: "four + sides", arrowDef: "→ four sides ; four-sided polygon" },
+    "quadruped": { parts: "quadru + ped", literals: "four + foot", arrowDef: "→ four feet ; four-legged animal" },
+    "quest": { parts: "quest", literals: "ask", arrowDef: "→ ask ; search" },
+    "inquisition": { parts: "in + quis + ition", literals: "into + ask + process", arrowDef: "→ process of asking ; investigation" },
+    "query": { parts: "quer + y", literals: "ask + thing", arrowDef: "→ ask thing ; question" },
+    "question": { parts: "quest + ion", literals: "ask + process", arrowDef: "→ process of asking ; inquiry" },
+    "quiz": { parts: "quiz", literals: "ask", arrowDef: "→ ask ; test" },
+    "redo": { parts: "re + do", literals: "again + do", arrowDef: "→ do again ; repeat" },
+    "rewind": { parts: "re + wind", literals: "again + wind", arrowDef: "→ wind again ; reverse" },
+    "resubmit": { parts: "re + submit", literals: "again + send", arrowDef: "→ send again ; submit again" },
+    "rebound": { parts: "re + bound", literals: "back + leap", arrowDef: "→ leap back ; bounce back" },
+    "react": { parts: "re + act", literals: "back + do", arrowDef: "→ do back ; respond" },
+    "inscribe": { parts: "in + scribe", literals: "into + write", arrowDef: "→ write into ; carve" },
+    "scripture": { parts: "script + ure", literals: "write + result", arrowDef: "→ result of writing ; sacred text" },
+    "script": { parts: "script", literals: "write", arrowDef: "→ written text ; screenplay" },
+    "scribe": { parts: "scribe", literals: "write", arrowDef: "→ writer ; copyist" },
+    "scribble": { parts: "scribb + le", literals: "write + repeatedly", arrowDef: "→ write repeatedly ; messy writing" },
+    "sense": { parts: "sens + e", literals: "feel + thing", arrowDef: "→ feel thing ; perception" },
+    "sensitive": { parts: "sens + itive", literals: "feel + tending to", arrowDef: "→ tending to feel ; responsive" },
+    "sensible": { parts: "sens + ible", literals: "feel + able", arrowDef: "→ able to feel ; reasonable" },
+    "sentiment": { parts: "sent + i + ment", literals: "feel + result", arrowDef: "→ result of feeling ; emotion" },
+    "consent": { parts: "con + sent", literals: "together + feel", arrowDef: "→ feel together ; agree" },
+    "spectator": { parts: "spect + ator", literals: "look + person", arrowDef: "→ looking person ; observer" },
+    "spectacles": { parts: "spect + acles", literals: "look + things", arrowDef: "→ things for looking ; glasses" },
+    "spectate": { parts: "spect + ate", literals: "look + make", arrowDef: "→ make look ; watch" },
+    "inspect": { parts: "in + spect", literals: "into + look", arrowDef: "→ look into ; examine" },
+    "introspective": { parts: "intro + spect + ive", literals: "within + look + tending to", arrowDef: "→ tending to look within ; self-examining" },
+    "construct": { parts: "con + struct", literals: "together + build", arrowDef: "→ build together ; build" },
+    "structure": { parts: "struct + ure", literals: "build + result", arrowDef: "→ result of building ; arrangement" },
+    "destruct": { parts: "de + struct", literals: "down + build", arrowDef: "→ build down ; destroy" },
+    "instruct": { parts: "in + struct", literals: "into + build", arrowDef: "→ build into ; teach" },
+    "construction": { parts: "con + struct + ion", literals: "together + build + process", arrowDef: "→ process of building together ; building" },
+    "suburbs": { parts: "sub + urb + s", literals: "under + city + plural", arrowDef: "→ under city ; residential area" },
+    "subway": { parts: "sub + way", literals: "under + path", arrowDef: "→ under path ; underground train" },
+    "submarine": { parts: "sub + marine", literals: "under + sea", arrowDef: "→ under sea ; underwater vessel" },
+    "subzero": { parts: "sub + zero", literals: "under + zero", arrowDef: "→ under zero ; below freezing" },
+    "sublime": { parts: "sub + lime", literals: "under + threshold", arrowDef: "→ under threshold ; majestic" },
+    "tempo": { parts: "temp + o", literals: "time + thing", arrowDef: "→ time thing ; speed" },
+    "temporary": { parts: "tempor + ary", literals: "time + relating to", arrowDef: "→ relating to time ; not permanent" },
+    "temporal": { parts: "tempor + al", literals: "time + relating to", arrowDef: "→ relating to time ; of time" },
+    "contemporary": { parts: "con + tempor + ary", literals: "together + time + relating to", arrowDef: "→ relating to same time ; modern" },
+    "protem": { parts: "pro + tem", literals: "for + time", arrowDef: "→ for time ; temporary" },
+    "retain": { parts: "re + tain", literals: "back + hold", arrowDef: "→ hold back ; keep" },
+    "contain": { parts: "con + tain", literals: "together + hold", arrowDef: "→ hold together ; include" },
+    "maintain": { parts: "main + tain", literals: "hand + hold", arrowDef: "→ hold by hand ; keep up" },
+    "entertain": { parts: "enter + tain", literals: "between + hold", arrowDef: "→ hold between ; amuse" },
+    "detain": { parts: "de + tain", literals: "away + hold", arrowDef: "→ hold away ; delay" },
+    "tractor": { parts: "tract + or", literals: "pull + thing", arrowDef: "→ pulling thing ; farm vehicle" },
+    "attract": { parts: "at + tract", literals: "to + pull", arrowDef: "→ pull to ; draw" },
+    "contract": { parts: "con + tract", literals: "together + pull", arrowDef: "→ pull together ; agreement" },
+    "subtract": { parts: "sub + tract", literals: "under + pull", arrowDef: "→ pull under ; remove" },
+    "distract": { parts: "dis + tract", literals: "away + pull", arrowDef: "→ pull away ; divert" },
+    "transport": { parts: "trans + port", literals: "across + carry", arrowDef: "→ carry across ; move" },
+    "transcribe": { parts: "trans + scribe", literals: "across + write", arrowDef: "→ write across ; copy" },
+    "translate": { parts: "trans + late", literals: "across + carry", arrowDef: "→ carry across ; convert language" },
+    "transparent": { parts: "trans + parent", literals: "across + appear", arrowDef: "→ appear across ; see-through" },
+    "unicorn": { parts: "uni + corn", literals: "one + horn", arrowDef: "→ one horn ; mythical horse" },
+    "universe": { parts: "uni + verse", literals: "one + turn", arrowDef: "→ one turning ; cosmos" },
+    "unity": { parts: "uni + ty", literals: "one + state", arrowDef: "→ state of one ; oneness" },
+    "unilateral": { parts: "uni + lateral", literals: "one + side", arrowDef: "→ one side ; one-sided" },
+    "vacant": { parts: "vac + ant", literals: "empty + being", arrowDef: "→ being empty ; unoccupied" },
+    "vacancy": { parts: "vac + ancy", literals: "empty + state", arrowDef: "→ state of empty ; available position" },
+    "evacuate": { parts: "e + vacu + ate", literals: "out + empty + make", arrowDef: "→ make empty out ; leave" },
+    "vacation": { parts: "vac + ation", literals: "empty + process", arrowDef: "→ process of being empty ; holiday" },
+    "vacuum": { parts: "vac + uum", literals: "empty + thing", arrowDef: "→ empty thing ; void" },
+    "visible": { parts: "vis + ible", literals: "see + able", arrowDef: "→ able to see ; can be seen" },
+    "video": { parts: "vid + eo", literals: "see + thing", arrowDef: "→ seeing thing ; recording" },
+    "vision": { parts: "vis + ion", literals: "see + process", arrowDef: "→ process of seeing ; sight" },
+    "evidence": { parts: "e + vid + ence", literals: "out + see + state", arrowDef: "→ state of seeing out ; proof" },
+    "visit": { parts: "vis + it", literals: "see + go", arrowDef: "→ go see ; call on" },
+    "convolution": { parts: "con + volut + ion", literals: "together + roll + process", arrowDef: "→ process of rolling together ; coil" },
+    "revolution": { parts: "re + volut + ion", literals: "back + roll + process", arrowDef: "→ process of rolling back ; uprising" },
+    "revolver": { parts: "re + volv + er", literals: "back + roll + thing", arrowDef: "→ rolling back thing ; handgun" },
+    "evolve": { parts: "e + volve", literals: "out + roll", arrowDef: "→ roll out ; develop" },
+    "devolve": { parts: "de + volve", literals: "down + roll", arrowDef: "→ roll down ; transfer" }
+  };
+
+  // Helper to get breakdown for any built-in example word
+  function getBuiltinBreakdown(word) {
+    if (wordBreakdowns[word]) return wordBreakdowns[word];
+    return null; // fallback to heuristic
+  }
+
+  // ----------------------------- USER DATA (localStorage) ---------------------------------
+  let customRoots = [];
+  let userExamplesMap = {};
+
+  function saveUserData() {
+    localStorage.setItem("lexiRootsUserData", JSON.stringify({ customRoots, userExamplesMap }));
+  }
+
+  function loadUserData() {
+    const raw = localStorage.getItem("lexiRootsUserData");
+    if (raw) {
+      try {
+        const data = JSON.parse(raw);
+        customRoots = data.customRoots || [];
+        userExamplesMap = data.userExamplesMap || {};
+      } catch(e) {}
+    }
+  }
+
+  let allOriginalRoots = [...greekRootsData.map(r=>({...r, type:'greek'})), ...latinRootsData.map(r=>({...r, type:'latin'}))];
+  
+  function getExampleObjectsForRoot(rootObj, rootKey, isCustom) {
+    let examples = [];
+    if (!isCustom && rootObj.examples) {
+      rootObj.examples.forEach(ex => {
+        if(typeof ex === 'string') examples.push({ word: ex, fromOriginal: true, rootObj });
+        else if(ex.word) examples.push({ word: ex.word, fromOriginal: false, customData: ex });
+      });
+    }
+    if (!isCustom && userExamplesMap[rootKey]) {
+      userExamplesMap[rootKey].forEach(ue => examples.push({ word: ue.word, fromOriginal: false, customData: ue }));
+    }
+    if (isCustom && rootObj.examples) {
+      rootObj.examples.forEach(ex => examples.push({ word: ex.word, fromOriginal: false, customData: ex }));
+    }
+    return examples;
+  }
+  
+  // Enhanced ensureBreakdown: first try built-in dictionary, then customData, then heuristic
+  function ensureBreakdown(word, rootObj, customData=null) {
+    if (customData) return { parts: customData.parts, literals: customData.literals, arrowDef: customData.arrowDef };
+    const builtin = getBuiltinBreakdown(word);
+    if (builtin) return builtin;
+    // Fallback heuristic (improved but rarely used now)
+    let rootPart = (rootObj.root || "").split('/')[0];
+    let rootMeaning = rootObj.meaning || "";
+    return { parts: `${rootPart} + ?`, literals: `${rootMeaning} + related`, arrowDef: `→ relating to ${rootMeaning} ; word containing "${rootPart}"` };
+  }
+  
+  // APP STATE
+  let currentGroup = 'greek', currentTab = 'flashcards', filteredRoots = [], currentCardIdx = 0, isFlipped = false;
+  let quizQuestionsPool = [], currentQuizQuestionObj, currentOptions, correctAnswerMeaning, quizAnswered=false, quizScore={correct:0,total:0};
+  
+  function getFilteredRoots() {
+    if(currentGroup === 'greek') return allOriginalRoots.filter(r => r.type === 'greek');
+    if(currentGroup === 'latin') return allOriginalRoots.filter(r => r.type === 'latin');
+    if(currentGroup === 'custom') return customRoots.map(r => ({ ...r, type: 'custom' }));
+    if(currentGroup === 'both') return [...allOriginalRoots, ...customRoots.map(r=>({...r, type:'custom'}))];
+    return [];
+  }
+  
+  function updateFilteredRoots() {
+    filteredRoots = getFilteredRoots();
+    if(currentCardIdx >= filteredRoots.length) currentCardIdx = 0;
+    renderFlashcard(false);
+    updateCardCounter();
+    refreshQuizIfNeeded();
+    if(currentTab === 'list') renderList();
+  }
+  
+  function refreshQuizIfNeeded() { if(currentTab === 'quiz') { buildQuizPool(); generateNewQuizQuestion(); } }
+  function updateCardCounter() { document.getElementById('cardCounter').innerText = filteredRoots.length ? `${currentCardIdx+1}/${filteredRoots.length}` : `0/0`; }
+  
+  function renderFlashcard(keepFlip) {
+    if(!filteredRoots.length) { document.getElementById('cardRoot').innerText = "—"; document.getElementById('cardMeaning').innerHTML = ""; document.getElementById('cardExamples').innerHTML = ""; return; }
+    const rootObj = filteredRoots[currentCardIdx];
+    const rootKey = rootObj.root;
+    const isCustom = (rootObj.type === 'custom');
+    document.getElementById('cardRoot').innerText = rootObj.root;
+    document.getElementById('cardMeaning').innerHTML = rootObj.meaning;
+    const examplesList = getExampleObjectsForRoot(rootObj, rootKey, isCustom);
+    const container = document.getElementById('cardExamples');
+    container.innerHTML = examplesList.map((ex, idx) => `<span class="example-badge" data-word="${ex.word}" data-rootkey="${rootKey}" data-iscustom="${isCustom}" data-customdata='${ex.customData ? JSON.stringify(ex.customData) : ''}' data-exampleidx="${idx}">${ex.word} <span class="delete-example-icon" data-delete-word="${ex.word}">🗑️</span></span>`).join('');
+    if (!keepFlip || !isFlipped) { document.getElementById('cardMeaningArea').style.display = 'none'; isFlipped = false; }
+    else { document.getElementById('cardMeaningArea').style.display = 'block'; isFlipped = true; }
+    attachExampleHandlers();
+  }
+  
+  function attachExampleHandlers() {
+    document.querySelectorAll('.example-badge').forEach(badge => {
+      const deleteIcon = badge.querySelector('.delete-example-icon');
+      if(deleteIcon) {
+        deleteIcon.addEventListener('click', (e) => { e.stopPropagation(); deleteExampleFromCurrentRoot(deleteIcon.dataset.deleteWord); });
+      }
+      badge.addEventListener('click', (e) => { if(e.target.classList.contains('delete-example-icon')) return; showBreakdownForExample(badge); });
+    });
+  }
+  
+  function deleteExampleFromCurrentRoot(word) {
+    if(!filteredRoots.length) return;
+    const rootObj = filteredRoots[currentCardIdx];
+    const isCustom = rootObj.type === 'custom';
+    const rootKey = rootObj.root;
+    if(isCustom) {
+      let cr = customRoots.find(r => r.root === rootKey);
+      if(cr && cr.examples) { cr.examples = cr.examples.filter(ex => ex.word !== word); saveUserData(); }
+    } else {
+      if(userExamplesMap[rootKey]) { userExamplesMap[rootKey] = userExamplesMap[rootKey].filter(ex => ex.word !== word); saveUserData(); }
+    }
+    renderFlashcard(true);
+    if(currentTab === 'list') renderList();
+    refreshQuizIfNeeded();
+    showToast(`Removed "${word}"`);
+  }
+  
+  function showBreakdownForExample(badge) {
+    const word = badge.dataset.word, rootKey = badge.dataset.rootkey, isCustomFlag = badge.dataset.iscustom === 'true';
+    let customData = null;
+    if(badge.dataset.customdata && badge.dataset.customdata !== '') customData = JSON.parse(badge.dataset.customdata);
+    let rootForBreakdown = filteredRoots.find(r => r.root === rootKey);
+    if(!rootForBreakdown) rootForBreakdown = { root: rootKey, meaning: "" };
+    const breakdown = ensureBreakdown(word, rootForBreakdown, customData);
+    document.getElementById('modalWord').innerText = word;
+    document.getElementById('modalStructure').innerText = breakdown.parts;
+    document.getElementById('modalPartsMeaning').innerText = breakdown.literals;
+    document.getElementById('modalDefinition').innerHTML = breakdown.arrowDef;
+    document.getElementById('wordModal').classList.add('active');
+  }
+  
+  function flipCard() { const area = document.getElementById('cardMeaningArea'); if (area.style.display === 'none') { area.style.display = 'block'; isFlipped = true; } else { area.style.display = 'none'; isFlipped = false; } }
+  function nextCard() { if (!filteredRoots.length) return; currentCardIdx = (currentCardIdx+1)%filteredRoots.length; renderFlashcard(false); updateCardCounter(); }
+  function prevCard() { if (!filteredRoots.length) return; currentCardIdx = (currentCardIdx-1+filteredRoots.length)%filteredRoots.length; renderFlashcard(false); updateCardCounter(); }
+  function randomCard() { if (!filteredRoots.length) return; currentCardIdx = Math.floor(Math.random()*filteredRoots.length); renderFlashcard(false); updateCardCounter(); }
+  
+  let currentRootForAdding = null;
+  function openAddExampleModal() { if (!filteredRoots.length) { showToast("No root selected"); return; } currentRootForAdding = filteredRoots[currentCardIdx]; document.getElementById('addExampleModal').classList.add('active'); }
+  function addExampleToRoot() {
+    const word = document.getElementById('newWord').value.trim(), parts = document.getElementById('newParts').value.trim(), literals = document.getElementById('newLiterals').value.trim(), arrowDef = document.getElementById('newArrowDef').value.trim();
+    if (!word || !parts || !literals || !arrowDef) { showToast("Fill all fields"); return; }
+    if (!currentRootForAdding) return;
+    const isCustom = (currentRootForAdding.type === 'custom'), rootKey = currentRootForAdding.root;
+    if (isCustom) {
+      let cr = customRoots.find(r => r.root === rootKey);
+      if(cr) { if(!cr.examples) cr.examples = []; if(cr.examples.some(e=>e.word===word)) { showToast("Example already exists"); return; } cr.examples.push({ word, parts, literals, arrowDef }); saveUserData(); }
+    } else {
+      if(!userExamplesMap[rootKey]) userExamplesMap[rootKey] = [];
+      if(userExamplesMap[rootKey].some(e=>e.word===word)) { showToast("Example already exists"); return; }
+      userExamplesMap[rootKey].push({ word, parts, literals, arrowDef }); saveUserData();
+    }
+    document.getElementById('newWord').value = ''; document.getElementById('newParts').value = ''; document.getElementById('newLiterals').value = ''; document.getElementById('newArrowDef').value = '';
+    document.getElementById('addExampleModal').classList.remove('active');
+    renderFlashcard(false); if(currentTab==='list') renderList(); refreshQuizIfNeeded();
+    showToast(`Added "${word}"`);
+  }
+  
+  function openAddRootModal() { document.getElementById('addRootModal').classList.add('active'); }
+  function addNewRoot() {
+    const rootName = document.getElementById('newRootName').value.trim(), meaning = document.getElementById('newRootMeaning').value.trim(), exampleText = document.getElementById('newRootExampleDef').value.trim();
+    if (!rootName || !meaning) { showToast("Root and meaning required"); return; }
+    if(customRoots.some(r=>r.root===rootName) || allOriginalRoots.some(r=>r.root===rootName)) { showToast("Root already exists"); return; }
+    let initialExamples = [];
+    if(exampleText) {
+      let parts = exampleText.split('|');
+      if(parts.length>=4) { initialExamples.push({ word: parts[0].trim(), parts: parts[1].trim(), literals: parts[2].trim(), arrowDef: parts[3].trim() }); }
+      else { showToast("Example format invalid"); return; }
+    }
+    customRoots.push({ root: rootName, meaning, examples: initialExamples, type: 'custom' });
+    saveUserData();
+    document.getElementById('newRootName').value = ''; document.getElementById('newRootMeaning').value = ''; document.getElementById('newRootExampleDef').value = '';
+    document.getElementById('addRootModal').classList.remove('active');
+    if (currentGroup === 'custom' || currentGroup === 'both') updateFilteredRoots();
+    refreshQuizIfNeeded();
+    showToast(`Root "${rootName}" added`);
+  }
+  
+  function deleteCustomRoot(rootName) {
+    customRoots = customRoots.filter(r => r.root !== rootName);
+    saveUserData();
+    updateFilteredRoots();
+    refreshQuizIfNeeded();
+    if(currentTab === 'list') renderList();
+    showToast(`Deleted "${rootName}"`);
+  }
+  
+  function exportData() {
+    let exportObj = { customRoots, userExamplesMap, version: 1 };
+    let blob = new Blob([JSON.stringify(exportObj, null, 2)], {type: "application/json"});
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `lexiroots_backup_${new Date().toISOString().slice(0,19)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast("Exported custom data");
+  }
+  
+  function parseImportText(text) {
+    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l && !l.startsWith('//'));
+    let roots = []; let currentRoot = null; let pendingExample = {};
+    for(let line of lines) {
+      if(line.match(/^# root:/i)) {
+        if(currentRoot && pendingExample.word && pendingExample.parts && pendingExample.literals && pendingExample.arrowDef) {
+          currentRoot.examples.push({...pendingExample});
+          pendingExample = {};
+        }
+        let match = line.match(/# root:\s*(.+?)\s*\(meaning:\s*(.+?)\s*\)/i);
+        if(match) {
+          currentRoot = { root: match[1].trim(), meaning: match[2].trim(), examples: [], type: 'custom' };
+          roots.push(currentRoot);
+          pendingExample = {};
+        }
+      } else if(currentRoot) {
+        if(!pendingExample.word && !line.includes('+') && !line.includes('→')) pendingExample.word = line;
+        else if(!pendingExample.parts && line.includes('+')) pendingExample.parts = line;
+        else if(!pendingExample.literals && line.includes('+') && !pendingExample.literals) pendingExample.literals = line;
+        else if(!pendingExample.arrowDef && line.includes('→')) { pendingExample.arrowDef = line;
+          if(pendingExample.word && pendingExample.parts && pendingExample.literals && pendingExample.arrowDef) {
+            currentRoot.examples.push({...pendingExample});
+            pendingExample = {};
+          }
+        }
+      }
+    }
+    if(currentRoot && pendingExample.word && pendingExample.parts && pendingExample.literals && pendingExample.arrowDef) currentRoot.examples.push(pendingExample);
+    return roots.filter(r=>r.root && r.meaning);
+  }
+  
+  function importRoots(text) {
+    let parsed = parseImportText(text);
+    if(!parsed.length) return { success: false, message: 'No valid roots found' };
+    let newRoots=0, mergedRoots=0, newExamples=0;
+    for(let imp of parsed) {
+      let existing = allOriginalRoots.find(r=>r.root.toLowerCase()===imp.root.toLowerCase()) || customRoots.find(r=>r.root.toLowerCase()===imp.root.toLowerCase());
+      if(!existing) {
+        customRoots.push(imp);
+        newRoots++;
+      } else {
+        mergedRoots++;
+        let isBuiltIn = allOriginalRoots.some(r=>r.root===existing.root);
+        if(isBuiltIn) {
+          if(!userExamplesMap[existing.root]) userExamplesMap[existing.root]=[];
+          for(let ex of imp.examples) {
+            if(!userExamplesMap[existing.root].some(e=>e.word===ex.word)) { userExamplesMap[existing.root].push(ex); newExamples++; }
+          }
+        } else {
+          let cr = customRoots.find(r=>r.root===existing.root);
+          if(cr) { if(!cr.examples) cr.examples=[];
+            for(let ex of imp.examples) { if(!cr.examples.some(e=>e.word===ex.word)) { cr.examples.push(ex); newExamples++; } }
+          }
+        }
+      }
+    }
+    saveUserData();
+    let msg = newRoots?`${newRoots} new root(s) `:'';
+    msg += newExamples?`+ ${newExamples} example(s) `:'';
+    if(!newRoots && !newExamples) return { success: false, message: 'All roots/examples already exist' };
+    return { success: true, message: `✅ Imported: ${msg}` };
+  }
+  
+  function showToast(msg) { let toast = document.getElementById('toastMsg'); toast.innerText = msg; toast.style.opacity = '1'; setTimeout(()=>{ toast.style.opacity='0'; }, 2000); }
+  
+  // Quiz functions
+  function buildQuizPool() { let roots = getFilteredRoots(); quizQuestionsPool = roots.map(r=>({ root: r.root, meaning: r.meaning })); }
+  function generateNewQuizQuestion() {
+    if(!quizQuestionsPool.length) buildQuizPool();
+    if(!quizQuestionsPool.length) return;
+    let idx = Math.floor(Math.random()*quizQuestionsPool.length);
+    currentQuizQuestionObj = quizQuestionsPool[idx];
+    correctAnswerMeaning = currentQuizQuestionObj.meaning;
+    let opts = [correctAnswerMeaning, ...quizQuestionsPool.filter(r=>r.meaning!==correctAnswerMeaning).slice(0,3).map(r=>r.meaning)];
+    for(let i=opts.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+    currentOptions = opts;
+    quizAnswered=false;
+    document.getElementById('nextQuizBtn').disabled = false;
+    renderQuizUI();
+  }
+  function renderQuizUI() {
+    if(!currentQuizQuestionObj) return;
+    document.getElementById('quizRootQuestion').innerHTML = currentQuizQuestionObj.root;
+    let optsDiv = document.getElementById('quizOptions');
+    optsDiv.innerHTML = '';
+    currentOptions.forEach(opt => {
+      let btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerText = opt;
+      btn.onclick = () => {
+        if(quizAnswered) return;
+        quizAnswered = true;
+        quizScore.total++;
+        let correct = (opt === correctAnswerMeaning);
+        if(correct) quizScore.correct++;
+        document.getElementById('quizScoreDisplay').innerHTML = `Score: ${quizScore.correct}/${quizScore.total}`;
+        document.getElementById('quizFeedback').innerHTML = correct ? '✅ Correct!' : `❌ Wrong! "${currentQuizQuestionObj.root}" means: ${correctAnswerMeaning}`;
+        document.querySelectorAll('.option-btn').forEach(b => {
+          if(b.innerText === correctAnswerMeaning) b.classList.add('correct-highlight');
+          if(b === btn && !correct) b.classList.add('wrong-highlight');
+          b.style.pointerEvents = 'none';
+        });
+        document.getElementById('nextQuizBtn').disabled = false;
+      };
+      optsDiv.appendChild(btn);
+    });
+    document.getElementById('quizScoreDisplay').innerHTML = `Score: ${quizScore.correct}/${quizScore.total}`;
+    document.getElementById('nextQuizBtn').disabled = false;
+  }
+  function nextQuizQuestion() { if(quizAnswered || true) { generateNewQuizQuestion(); document.getElementById('quizFeedback').innerHTML = ''; } }
+  
+  function renderList() {
+    let roots = getFilteredRoots();
+    const container = document.getElementById('listContainer');
+    if(roots.length===0) { container.innerHTML = '<div class="empty-message">✨ No roots here. Switch group or add custom roots.</div>'; return; }
+    container.innerHTML = roots.map(r => {
+      let examplesPreview = [];
+      if(r.type === 'custom' && r.examples) examplesPreview = r.examples.map(ex => ex.word);
+      else if(r.examples) examplesPreview = r.examples;
+      let userAdds = userExamplesMap[r.root] || [];
+      let allEx = [...examplesPreview, ...userAdds.map(u=>u.word)].slice(0,4);
+      let deleteBtn = (r.type === 'custom') ? `<button class="delete-root-btn" data-root="${r.root}">🗑️</button>` : '';
+      return `<div class="list-item"><div class="list-info"><div class="list-root">${r.root}</div><div class="list-meaning">${r.meaning}</div><div class="list-examples">${allEx.map(ex => `<span class="badge-example">${ex}</span>`).join('')}</div></div>${deleteBtn}</div>`;
+    }).join('');
+    document.querySelectorAll('.delete-root-btn').forEach(btn => btn.addEventListener('click', (e) => { let root = btn.dataset.root; if(confirm(`Delete root "${root}" and all its examples?`)) deleteCustomRoot(root); }));
+  }
+  
+  function setGroup(group) { currentGroup = group; document.querySelectorAll('.group-btn').forEach(btn=>{ if(btn.dataset.group===group) btn.classList.add('active'); else btn.classList.remove('active'); }); updateFilteredRoots(); }
+  function setTab(tab) { currentTab = tab; document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none'); document.getElementById(`${tab}Panel`).style.display='block'; if(tab==='flashcards'){ renderFlashcard(false); updateCardCounter(); } if(tab==='quiz'){ buildQuizPool(); generateNewQuizQuestion(); } if(tab==='list') renderList(); document.querySelectorAll('.tab-btn').forEach(btn=>{ if(btn.dataset.tab===tab) btn.classList.add('active'); else btn.classList.remove('active'); }); }
+  
+  // Event binding
+  document.getElementById('prevCardBtn').addEventListener('click', prevCard);
+  document.getElementById('nextCardBtn').addEventListener('click', nextCard);
+  document.getElementById('randomCardBtn').addEventListener('click', randomCard);
+  document.getElementById('flashcardEl').addEventListener('click', flipCard);
+  document.getElementById('nextQuizBtn').addEventListener('click', nextQuizQuestion);
+  document.getElementById('addExampleBtn').addEventListener('click', openAddExampleModal);
+  document.getElementById('addRootBtn').addEventListener('click', openAddRootModal);
+  document.getElementById('confirmExampleBtn').addEventListener('click', addExampleToRoot);
+  document.getElementById('closeExampleModal').addEventListener('click', ()=>document.getElementById('addExampleModal').classList.remove('active'));
+  document.getElementById('confirmRootBtn').addEventListener('click', addNewRoot);
+  document.getElementById('closeRootModal').addEventListener('click', ()=>document.getElementById('addRootModal').classList.remove('active'));
+  document.querySelectorAll('.group-btn').forEach(btn=>btn.addEventListener('click', (e)=>setGroup(e.target.dataset.group)));
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click', (e)=>setTab(e.target.dataset.tab)));
+  document.getElementById('closeModalBtn')?.addEventListener('click', ()=>document.getElementById('wordModal').classList.remove('active'));
+  document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importModal').classList.add('active'));
+  document.getElementById('closeImportModal').addEventListener('click', ()=>document.getElementById('importModal').classList.remove('active'));
+  document.getElementById('confirmImportBtn').addEventListener('click', ()=>{
+    let result = importRoots(document.getElementById('importTextarea').value);
+    let statusEl = document.getElementById('importStatus');
+    statusEl.style.display='block'; statusEl.style.color=result.success?'#166534':'#991b1b'; statusEl.style.backgroundColor=result.success?'#dcfce7':'#fee2e2'; statusEl.innerText=result.message;
+    if(result.success) { document.getElementById('importTextarea').value=''; updateFilteredRoots(); refreshQuizIfNeeded(); setTimeout(()=>{document.getElementById('importModal').classList.remove('active'); statusEl.style.display='none';}, 1500); }
+  });
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  window.addEventListener('click', (e)=>{ if(e.target===document.getElementById('wordModal')) document.getElementById('wordModal').classList.remove('active'); });
+  
+  loadUserData();
+  updateFilteredRoots();
+  setTab('flashcards');
+</script>
+</body>
+</html>
